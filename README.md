@@ -12,20 +12,27 @@ task = makeClusterTask(data = iris.train)
 mod = train("cluster.kmeans", task)
 
 newdata.pred = predict(mod, newdata = iris.test)
-newdata.pred
-#> Prediction: 75 observations
-#> predict.type: response
-#> threshold: 
-#> time: 0.00
-#>    response
-#> 2         2
-#> 4         2
-#> 6         2
-#> 8         2
-#> 10        2
-#> 12        2
-#> ... (#rows: 75, #cols: 1)
 
+## get a posteriori probabilities create a Learner
+lrn = makeLearner("classif.rpart", predict.type = "prob")
+mod = train(lrn, iris.task)
+
+pred = predict(mod, newdata = iris)
+
+head(as.data.frame(pred))
+head(getPredictionProbabilities(pred))
+calculateConfusionMatrix(pred)
+conf.matrix = calculateConfusionMatrix(pred, relative = TRUE)
+
+## Classification: Adjusting the decision threshold
+lrn = makeLearner("classif.rpart", predict.type = "prob")
+mod = train(lrn, iris.task)
+pred = predict(mod, newdata = iris)
+pred$threshold
+
+## Visualizing the prediction
+lrn = makeLearner("classif.rpart", id = "CART")
+plotLearnerPrediction(lrn, task = iris.task) 
 ```
 
 
